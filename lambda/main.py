@@ -56,7 +56,7 @@ def lambda_handler(event, context):
                 "userId": user_id,
                 "bucket": bucket_name,
                 "uploadedKey" : uploaded_profile_picture_key,
-                "resizedKey": uploaded_profile_picture_key
+                "resizedKey": resized_profile_picture_key
             }
         }
     except Exception as e:

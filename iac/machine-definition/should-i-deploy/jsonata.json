@@ -1,0 +1,82 @@
+{
+  "QueryLanguage": "JSONata",
+  "Comment": "A description of my state machine",
+  "StartAt": "Call Should I deploy API",
+  "States": {
+    "Call Should I deploy API": {
+      "Type": "Task",
+      "Resource": "arn:aws:states:::http:invoke",
+      "Arguments": {
+        "ApiEndpoint": "https://shouldideploy.today/api",
+        "Method": "GET",
+        "InvocationConfig": {
+          "ConnectionArn": "${CONNECTION_ARN}"
+        }
+      },
+      "Retry": [
+        {
+          "ErrorEquals": [
+            "States.ALL"
+          ],
+          "BackoffRate": 2,
+          "IntervalSeconds": 1,
+          "MaxAttempts": 3,
+          "JitterStrategy": "FULL"
+        }
+      ],
+      "Next": "ListAttachedUserPolicies",
+      "Output": {
+        "deploy": "{% $states.result.ResponseBody.shouldideploy %}"
+      },
+      "Assign": {
+        "deploy": "{% $states.result.ResponseBody.shouldideploy %}"
+      }
+    },
+    "ListAttachedUserPolicies": {
+      "Type": "Task",
+      "Arguments": {
+        "UserName": "${IAM_USER_NAME}"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:iam:listAttachedUserPolicies",
+      "Next": "Should I Deploy?",
+      "Output": {
+        "policyAttached": "{% '${DENY_POLICY_ARN}' in $states.result.AttachedPolicies.PolicyArn %}"
+      }
+    },
+    "Should I Deploy?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Next": "AttachUserPolicy",
+          "Condition": "{% $deploy = false and $states.input.policyAttached = false %}"
+        },
+        {
+          "Next": "Success",
+          "Condition": "{% ($deploy = false and $states.input.policyAttached = true) or ($deploy = true and $states.input.policyAttached = false) %}"
+        }
+      ],
+      "Default": "DetachUserPolicy"
+    },
+    "AttachUserPolicy": {
+      "Type": "Task",
+      "Arguments": {
+        "PolicyArn": "${DENY_POLICY_ARN}",
+        "UserName": "${IAM_USER_NAME}"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:iam:attachUserPolicy",
+      "End": true
+    },
+    "DetachUserPolicy": {
+      "Type": "Task",
+      "Arguments": {
+        "PolicyArn": "${DENY_POLICY_ARN}",
+        "UserName": "${IAM_USER_NAME}"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:iam:detachUserPolicy",
+      "End": true
+    },
+    "Success": {
+      "Type": "Succeed"
+    }
+  }
+}

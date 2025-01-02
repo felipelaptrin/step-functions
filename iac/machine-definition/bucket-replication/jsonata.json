@@ -1,0 +1,51 @@
+{
+  "QueryLanguage": "JSONata",
+  "Comment": "A description of my state machine",
+  "StartAt": "StartTaskExecution",
+  "States": {
+    "StartTaskExecution": {
+      "Type": "Task",
+      "Arguments": {
+        "TaskArn": "${TASK_ARN}"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:datasync:startTaskExecution",
+      "Next": "Wait 10s"
+    },
+    "Wait 10s": {
+      "Type": "Wait",
+      "Seconds": 10,
+      "Next": "DescribeTaskExecution"
+    },
+    "DescribeTaskExecution": {
+      "Type": "Task",
+      "Arguments": {
+        "TaskExecutionArn": "{% $states.input.TaskExecutionArn %}"
+      },
+      "Resource": "arn:aws:states:::aws-sdk:datasync:describeTaskExecution",
+      "Next": "Job Complete?",
+      "Assign": {
+        "TaskExecutionArn": "{% $states.input.TaskExecutionArn %}"
+      }
+    },
+    "Job Complete?": {
+      "Type": "Choice",
+      "Choices": [
+        {
+          "Condition": "{% $states.input.Status = 'ERROR' %}",
+          "Next": "Fail"
+        },
+        {
+          "Condition": "{% $states.input.Status = 'SUCCESS' %}",
+          "Next": "Success"
+        }
+      ],
+      "Default": "Wait 10s"
+    },
+    "Success": {
+      "Type": "Succeed"
+    },
+    "Fail": {
+      "Type": "Fail"
+    }
+  }
+}

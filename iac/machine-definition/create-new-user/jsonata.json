@@ -1,0 +1,40 @@
+{
+    "QueryLanguage": "JSONata",
+    "Comment": "A description of my state machine",
+    "StartAt": "SNS Publish",
+    "States": {
+      "SNS Publish": {
+        "Type": "Task",
+        "Resource": "arn:aws:states:::sns:publish.waitForTaskToken",
+        "Arguments": {
+          "Message": "{% 'Task token =>' & $states.context.Task.Token %}",
+          "Subject": "{% 'User creation approval: ' & $states.input.username %}",
+          "TopicArn": "${TOPIC_ARN}"
+        },
+        "Next": "CreateUser",
+        "Assign": {
+          "username": "{% $states.input.username %}"
+        }
+      },
+      "CreateUser": {
+        "Type": "Task",
+        "Arguments": {
+          "UserName": "{% $username %}"
+        },
+        "Resource": "arn:aws:states:::aws-sdk:iam:createUser",
+        "Next": "AddUserToGroup",
+        "Assign": {
+          "group": "{% $states.input.admin = true ? '${ADMIN_GROUP_NAME}' : '${DEVELOP_GROUP_NAME}' %}"
+        }
+      },
+      "AddUserToGroup": {
+        "Type": "Task",
+        "Arguments": {
+          "GroupName": "{% $group %}",
+          "UserName": "{% $username %}"
+        },
+        "Resource": "arn:aws:states:::aws-sdk:iam:addUserToGroup",
+        "End": true
+      }
+    }
+  }

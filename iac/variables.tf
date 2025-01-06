@@ -14,3 +14,8 @@ variable "query_language" {
     error_message = "Valid values for var: test_variable are: 'jsonata', 'jsonpath'"
   }
 }
+
+variable "email" {
+  description = "Email to subscribe in the SNS topic (create-new-user exercise)"
+  type        = string
+}

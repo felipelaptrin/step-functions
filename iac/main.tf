@@ -1,6 +1,6 @@
 module "resize-image" {
   source         = "./modules/resize-image"
-  query_language = "jsonpath"
+  query_language = "jsonata"
 }
 
 module "should-i-deploy" {
@@ -9,7 +9,7 @@ module "should-i-deploy" {
 
 module "create-new-user" {
   source = "./modules/create-new-user"
-  email  = "" # Add your email here
+  email  = var.email
 }
 
 module "bucket-replication" {

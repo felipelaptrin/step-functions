@@ -1,4 +1,5 @@
-# IaC
+# Testing the Step Function
+Add PNG profile pictures to the bucket. All the profile pictures should be placed inside the `uploaded` folder (object prefix).
 
 ## Requirements
 

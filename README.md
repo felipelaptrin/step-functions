@@ -1,13 +1,21 @@
 # step-functions
 
-This is a demo repository for my [personal blog article](https://felipetrindade.com/step-functions).
+This is a demo repository for my [personal blog article](https://felipetrindade.com/step-functions). It contains four (4) Step Function exercises. Go ahead and explore them:
+- `should i deploy`: Basic example of the capabilities of Step Functions
+- `create new user`: Explores Task Token states (manual approval)
+- `bucket replication`: Explores the Pooling pattern for async jobs
+- `resize image`: A closer "real-world" example.
 
-## Profile picture resizer
-The goal of the code provided here is to provision a basic infrastructure responsible for resizing profile pictures to use as thumbnails in different parts of an website: small and big sizes.
+This README will focus on the later exercise. You can check each exercise, their own README, and documentation.
+
+I highly encourage the reading of my blog post for deep explanation.
+
+## Resize Image: Profile picture resizer
+The goal of the code provided here is to provision a basic infrastructure responsible for resizing profile pictures to use as thumbnails in different parts of a website: small and big sizes.
 
 When a user uploads a new profile picture the provided code created here will:
 - Download the profile picture from S3
-- Resize using Pillow Python library
+- Resize using the Pillow Python library
 - Store the resized images in S3
 - Update DynamoDB tables with the corresponding S3 object key
 - Delete the original (uploaded) profile picture from S3

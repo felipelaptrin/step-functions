@@ -45,6 +45,7 @@ devbox shell
 3) Initialize Terraform
 
 ```sh
+cd iac
 terraform init
 ```
 

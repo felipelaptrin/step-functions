@@ -4,16 +4,32 @@
 
 2) Check your email inbox and accept the SNS topic
 
-3) Trigger passing `username` (string) and `admin` (boolean)
+3) Trigger the workflow passing `username` (string) and `admin` (boolean)
 
 ```
 {
-  "username": "john-doe",
-  "admin": true
+  "username": "john-doe"
 }
 ```
 
-4) 
+4) Check your email inbox and copy the TASK_TOKEN
+
+5) Approve or Reject the request
+
+```sh
+# Deny
+aws stepfunctions send-task-failure --task-token $TASK_TOKEN
+
+# Approve as admin
+aws stepfunctions send-task-success \
+ --task-output '{"admin": true}' \
+    --task-token $TASK_TOKEN
+
+# Approve as developer
+aws stepfunctions send-task-success \
+ --task-output '{"admin": false}' \
+    --task-token $TASK_TOKEN
+```
 
 # IaC
 
